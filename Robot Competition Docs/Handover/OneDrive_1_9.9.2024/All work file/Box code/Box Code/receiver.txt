@@ -1,0 +1,94 @@
+#define buffSize 256
+char receiveBuffer[buffSize];
+uint8_t receiveBufferSize = 0;
+
+
+
+
+if (Serial.available())
+            {
+                receiveBufferSize = 0;
+                while (Serial.available() > 0)
+                {
+                    receiveBuffer[receiveBufferSize] = char(Serial.read());
+                    if (receiveBufferSize < buffSize - 1)
+                        receiveBufferSize++;
+                }
+                Serial.write(receiveBuffer, receiveBufferSize);
+  
+
+
+		receiveBuffer[receiveBufferSize] = 0;
+                Serial.println(receiveBuffer);
+                if (receiveBuffer[0] == '!')
+                {
+#ifdef DEBUG
+                    Serial.println("Config Data Valid!");
+#endif // DEBUG
+                    char *command = strtok(receiveBuffer, "?");
+                    Serial.println(command);
+                    if ((strcmp(command, "!GETCFG\r\n") == 0) || (strcmp(command, "!GETCFG") == 0))
+                    {
+                        Serial.println("GET CONFIG");
+                        String configData = "!CFGCOM?" + (String) "test"; // comConf + "!CFGSID?" + ssidConf + "!CFGCOM1?" + com1Conf + "!CFGCOM2?" + com2Conf + "!CFGCOM3?" + com3Conf;
+                        sendWifi(configData);
+                        Serial.print(configData);
+                    }
+                    else if (strcmp(command, "!SETSID") == 0)
+                    {
+                        Serial.println("SET SSID CONFIG");
+                        char *command2 = strtok(0, "?");
+                        Serial.println(command2);
+                        Serial.println(strlen(command2));
+                        if (strlen(command2) >= 4)
+                        {
+                            // writeString(SSIDCONFIG, command2);
+                            sendWifi("!OK");
+                        }
+                        else
+                        {
+                            sendWifi("!ERR?SSIDLEN");
+                        }
+                    }
+                    else if (strcmp(command, "!SETCOM") == 0)
+                    {
+                        Serial.println("SET COM CONFIG");
+                        char *command2 = strtok(0, "?");
+                        Serial.println(command2);
+                        sendWifi("!OK");
+                    }
+                    else if (strcmp(command, "!SETCOM1") == 0)
+                    {
+                        Serial.println("SET COM CONFIG");
+                        char *command2 = strtok(0, "?");
+                        Serial.println(command2);
+                        int commad2Int = String(command2).toInt();
+                        sendWifi("!OK");
+                    }
+                    else if (strcmp(command, "!SETCOM2") == 0)
+                    {
+                        Serial.println("SET COM CONFIG");
+                        char *command2 = strtok(0, "?");
+                        Serial.println(command2);
+                        int commad2Int = String(command2).toInt();
+                        sendWifi("!OK");
+                    }
+                    else if (strcmp(command, "!SETCOM3") == 0)
+                    {
+                        Serial.println("SET COM CONFIG");
+                        char *command2 = strtok(0, "?");
+                        Serial.println(command2);
+                        int commad2Int = String(command2).toInt();
+                        sendWifi("!OK");
+                    }
+                    else if ((strcmp(command, "!REBOOT\r\n") == 0) || (strcmp(command, "!REBOOT") == 0))
+                    {
+                        Serial.println("Esp will Reboot");
+                        ESP.restart();
+                    }
+                    else
+                    {
+                        Serial.println("Wrong Command");
+                        sendWifi("!ERR?COMMAND");
+                    }
+                }
