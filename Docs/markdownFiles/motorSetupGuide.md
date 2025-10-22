@@ -69,7 +69,7 @@ Now do the same for the other motor:
 
 `odrv0.axis1.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE`
 <br>
-Wait for it to finish.
+Wait for it to finish. The motor will beep, then the wheel will spin a bit forward and then back 
 <br>
 `odrv0.axis1.encoder.config.pre_calibrated = True`
 <br>
@@ -81,7 +81,7 @@ Now save and reboot:
 <br>
 `odrv0.reboot()`
 
-Before running either motor you have to put them in the closed loop state with these commands:
+**IMPORTANT!** Before running either motor you have to put them in the closed loop state with these commands:
 
 `odrv0.axis0.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL`
 <br>
@@ -96,4 +96,4 @@ and
 `odrv0.axis1.controller.input_vel = 1.0`
 
 A velocity of 1 is already pretty fast.
-Now after you calibrated once the next time you want to run the motors you just have to go into closed loop state and then directly set the velocity.
+Now after you calibrated once the next time you want to run the motors you just have to go into the closed loop state and then directly set the velocity.
