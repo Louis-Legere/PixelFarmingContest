@@ -61,6 +61,7 @@ To do that, open odrivetool and first write this command for the first motor:
 Wait for it to finish and then put these commands:
 
 `odrv0.axis0.encoder.config.pre_calibrated = True`
+<br>
 `odrv0.axis0.motor.config.pre_calibrated = True`
 
 Now do the same for the other motor:
@@ -71,6 +72,7 @@ Now do the same for the other motor:
 Wait for it to finish.
 <br>
 `odrv0.axis1.encoder.config.pre_calibrated = True`
+<br>
 `odrv0.axis1.motor.config.pre_calibrated = True`
 
 Now save and reboot:
