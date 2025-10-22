@@ -3,6 +3,7 @@
 Hey future Fontys MINOR pixel farming group. Here is a guide on how to setup the motors so that they are able to move.
 
 ### Wiring
+---
 
 Here is an image of how to wire the ODESC 3.6 motor controller:
 <br>
@@ -18,6 +19,7 @@ Here you can see an image of how the motors are connected (please excuse the wir
 
 
 ### Configuration:
+---
 
 The ODESC might already be configured. If not, then please connect your pc to it with a micro usb-cable.
 
@@ -45,9 +47,10 @@ Once you are successfully connected we strongly advise you to use our [config fi
 <br>
 **Note:** To run this command you have to be outside of the odrivetool.
 
-When you run the command it might tell you that not all of the configs were able to be used. However this is fine.
+When you run the command it might tell you that not all of the configs were able to be used. However this is fine. Now before running the motors you have to calibrate them.
 
-Now before running the motors you have to calibrate them.
+### Calibrating the Motors
+---
 
 **Note:** When calibrating the motors they should be spinning freely in the air!
 
