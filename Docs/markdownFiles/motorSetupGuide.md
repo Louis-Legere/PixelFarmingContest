@@ -41,7 +41,7 @@ If that happens you can fix that by reinstalling your drivers with [Zadig](https
 **IMPORTANT:** Check that you have the correct device listed before changing the driver. It should look something like this:
 ![Zadig](imgs/zadig.png)
 <br>
-Once you are successfully connected we strongly advise you to use our [config file](/workingSetupBothWheels.json). You can load it onto the ODESC by using the following command: 
+Once you are successfully connected we strongly advise you to use our [config file](/Docs/workingSetupBothWheels.json). You can load it onto the ODESC by using the following command: 
 <br>
 `odrivetool restore-config configName.json`
 <br>

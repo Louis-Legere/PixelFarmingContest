@@ -1,0 +1,17 @@
+odrv0.axis0.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE
+odrv0.axis0.encoder.config.pre_calibrated = True
+odrv0.axis0.motor.config.pre_calibrated = True
+
+odrv0.axis1.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE
+odrv0.axis1.encoder.config.pre_calibrated = True
+odrv0.axis1.motor.config.pre_calibrated = True
+
+odrv0.save_configuration()
+odrv0.reboot()
+
+
+odrv0.axis0.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
+odrv0.axis1.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
+
+odrv0.axis0.controller.input_vel = 1.0
+odrv0.axis1.controller.input_vel = 1.0
