@@ -28,7 +28,9 @@ To configure the ODESC you need the odrivetool. It can be downloaded via python 
 <br>
 <br>
 Once installed you can just write `odrivetool` in your command line. However after connecting the ODESC via usb you are likely to get this error:
+<br>
 ![error](imgs/error.png)
+<br>
 **Note:** this error is normal for first time connecting
 <br>
 <br>
