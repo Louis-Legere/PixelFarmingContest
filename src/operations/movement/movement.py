@@ -23,4 +23,21 @@ def moveForward(velocity): #maximum 2 numbers after the comma
         print(i / 100)
         time.sleep(accelerationWaitTime)
 
+def moveBackwards(velocity):
+    return
+
+def stopMoving():
+    return
+
+def turnLeft(velocity): #turns left with the right wheels velocity
+    return
+
+def turnRight(velocity): #turns right with the left wheels velocity
+    return
+
+def turnBy90DegreesRight():
+    return
+
+def turnBy90DegreesLeft():
+    return
 
