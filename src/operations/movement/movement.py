@@ -56,16 +56,16 @@ def stopMoving():
     odrv0.axis0.controller.input_vel = 0
     odrv0.axis1.controller.input_vel = 0
 
-def turnLeft(velocity): #turns left with the right wheels velocity
+def turnLeft(velocity): #turns left with the right wheels velocity left wheel also spins slowly
     return
 
-def turnRight(velocity): #turns right with the left wheels velocity
+def turnRight(velocity): #turns right with the left wheels velocity right wheel also spinns slowly
     return
 
-def turnBy90DegreesRight():
+def turnBy90DegreesRight(): #right wheel does not move
     return
 
-def turnBy90DegreesLeft():
+def turnBy90DegreesLeft(): #left wheel does not move
     return
 
 
