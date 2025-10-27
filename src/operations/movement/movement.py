@@ -56,11 +56,26 @@ def stopMoving():
     odrv0.axis0.controller.input_vel = 0
     odrv0.axis1.controller.input_vel = 0
 
-def turnLeft(velocity): #turns left with the right wheels velocity left wheel also spins slowly
-    return
+def turnLeft(percentage): #percentage that the right wheel spins faster left wheel also spins slowly
+    percentage = percentage / 100
+    currentVelLeft = odrv0.axis1.controller.input_vel
+    value = currentVelLeft * percentage
+    odrv0.axis0.controller.input_vel = currentVelLeft + value
 
-def turnRight(velocity): #turns right with the left wheels velocity right wheel also spinns slowly
-    return
+def turnRight(percentage): #percentage that the left wheel spins faster right wheel also spins slowly
+    percentage = percentage / 100
+    currentVelRight = odrv0.axis0.controller.input_vel
+    value = currentVelRight * percentage
+    odrv0.axis1.controller.input_vel = currentVelRight + value
+
+def stopTurning():
+    currentVelAxis0 = odrv0.axis0.controller.input_vel
+    currentVelAxis1 = odrv0.axis1.controller.input_vel
+
+    if currentVelAxis0 < currentVelAxis1:
+        odrv0.axis1.controller.input_vel = currentVelAxis0
+    else:
+        odrv0.axis0.controller.input_vel = currentVelAxis1
 
 def turnBy90DegreesRight(): #right wheel does not move
     return
