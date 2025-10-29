@@ -1,0 +1,10 @@
+Gripper not damage the plants
+New camera that uses sensors to detects XYZ coords
+Tapping to find arm coords
+Conventional machine vision methods
+Labeling image detection objects
+Camera mounted to robot arm
+Machine learning method that updates while the robot is in motion
+Seeing if location of each vegetable is pre determined
+Jittering of wheels might be a problem due to the wheels being in the air
+Determine and order a correct lens
