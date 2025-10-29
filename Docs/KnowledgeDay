@@ -8,3 +8,6 @@ Machine learning method that updates while the robot is in motion
 Seeing if location of each vegetable is pre determined
 Jittering of wheels might be a problem due to the wheels being in the air
 Determine and order a correct lens
+Think of our learning goal. What is achievable? Is it affordable with our budget? Etc.
+Use ChatGPT to write code for determining difference between each vegetable
+
