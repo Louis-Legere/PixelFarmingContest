@@ -1,5 +1,5 @@
 
-import odrive
+from src.utils.uartConnection import connection
 from typing import Final
 import time
 
@@ -12,70 +12,103 @@ decelerationSteps = 100
 AXIS_STATE_CLOSED_LOOP_CONTROL: Final = 8
 IDLE: Final = 1 #helps with motor twitching
 
+# Helper function to send a command via UART
+def send_command(command: str):
+    """Send a command string to the motor controller via UART."""
+    if not connection.is_open:
+        raise ConnectionError("UART connection is not open.")
+    connection.write((command + "\n").encode("utf-8"))
+    time.sleep(0.001)  # small delay to avoid overwhelming the microcontroller
 
-odrv0 = odrive.find_any()
-time.sleep(1)
+def moveForward(velocity: float):
+    steps = int(velocity * 100) + 1  # 1.55 * 100 is 155. +1 = 156
 
-
-
-def moveForward(velocity): #maximum 2 numbers after the comma
-    for i in range(int(velocity * 100 + 1)):  #in case of velocity = 1.55 its 156. So the loop goes 0,1,2 ... 155. And 155 divided by 100 is 1.55 again
-        odrv0.axis0.controller.input_vel = i / 100
-        odrv0.axis1.controller.input_vel = i / 100
-        print(i / 100)
+    for i in range(steps): # 0 ... 155
+        speed = i / 100  # convert back to float
+        send_command(f"v 0 {speed}") # v = velocity; 0 = axisNumber; speed = velocity
+        send_command(f"v 1 {speed}")
+        print(f"Current speed: {speed}")
         time.sleep(accelerationWaitTime)
 
 def moveBackwards(velocity):
     for i in range(int( abs(velocity) * 100 + 1)):  # in case of velocity = 1.55 its 156. So the loop goes 0,1,2 ... 155. And 155 divided by 100 is 1.55 again
-        odrv0.axis0.controller.input_vel = (i / 100) * -1 #negative cause backwards
-        odrv0.axis1.controller.input_vel = (i / 100) * -1
-        print((i / 100) * -1)
+        send_command(f"v 0 {(i / 100) * -1}") #negative cause backwards
+        send_command(f"v 1 {(i / 100) * -1}")
+        print(f"Current speed: {(i / 100) * -1}")
         time.sleep(accelerationWaitTime)
 
 def stopMoving():
-    # Read current velocities
-    currentVelAxis0 = odrv0.axis0.controller.input_vel
-    currentVelAxis1 = odrv0.axis1.controller.input_vel
+    send_command("f 0")  # axis 0
+    response = connection.readline().decode().strip()
+    parts = response.split()
+    velAxis0 = float(parts[1])
+
+    send_command("f 1")  # axis 1
+    response = connection.readline().decode().strip()
+    parts = response.split()
+    velAxis1 = float(parts[1])
 
     # Compute decrement per step
-    decrementAxis0 = currentVelAxis0 / decelerationSteps
-    decrementAxis1 = currentVelAxis1 / decelerationSteps
+    decrementAxis0 = velAxis0 / decelerationSteps
+    decrementAxis1 = velAxis1 / decelerationSteps
 
     for i in range(decelerationSteps):
         # Reduce velocity but do not go below zero
-        odrv0.axis0.controller.input_vel = max(0, odrv0.axis0.controller.input_vel - decrementAxis0)
-        odrv0.axis1.controller.input_vel = max(0, odrv0.axis1.controller.input_vel - decrementAxis1)
+        send_command("f 0")  # axis 0
+        response = connection.readline().decode().strip()
+        parts = response.split()
+        currentVelAxis0 = float(parts[1])
+
+        send_command("f 1")  # axis 1
+        response = connection.readline().decode().strip()
+        parts = response.split()
+        currentVelAxis1 = float(parts[1])
+
+        send_command(f"v 0 {max(0, currentVelAxis0 - decrementAxis0)}")
+        send_command(f"v 1 {max(0, currentVelAxis1 - decrementAxis1)}")
 
         # Print current velocities
-        print(f"speed axis0 = {odrv0.axis0.controller.input_vel:.2f}")
-        print(f"speed axis1 = {odrv0.axis1.controller.input_vel:.2f}")
-
+        print(f"speed axis0 = {max(0, currentVelAxis0 - decrementAxis0):.2f}")
+        print(f"speed axis1 = {max(0, currentVelAxis1 - decrementAxis1):.2f}")
         time.sleep(decelerationWaitTime)
 
     # Ensure velocities are exactly zero at the end
-    odrv0.axis0.controller.input_vel = 0
-    odrv0.axis1.controller.input_vel = 0
+    send_command(f"v 0 0")
+    send_command(f"v 1 0")
 
-def turnLeft(percentage): #percentage that the right wheel spins faster left wheel also spins slowly
-    percentage = percentage / 100
-    currentVelLeft = odrv0.axis1.controller.input_vel
+def turnRight(percentage): #percentage that the right wheel spins faster left wheel also spins slowly
+    send_command("f 0")  # axis 0
+    response = connection.readline().decode().strip()
+    parts = response.split()
+    currentVelLeft = float(parts[1])
+
     value = currentVelLeft * percentage
-    odrv0.axis0.controller.input_vel = currentVelLeft + value
+    send_command(f"v 0 {currentVelLeft + value}")
 
-def turnRight(percentage): #percentage that the left wheel spins faster right wheel also spins slowly
-    percentage = percentage / 100
-    currentVelRight = odrv0.axis0.controller.input_vel
+def turnLeft(percentage): #percentage that the left wheel spins faster right wheel also spins slowly
+    send_command("f 1")  # axis 0
+    response = connection.readline().decode().strip()
+    parts = response.split()
+    currentVelRight = float(parts[1])
+
     value = currentVelRight * percentage
-    odrv0.axis1.controller.input_vel = currentVelRight + value
+    send_command(f"v 1 {currentVelRight + value}")
 
 def stopTurning():
-    currentVelAxis0 = odrv0.axis0.controller.input_vel
-    currentVelAxis1 = odrv0.axis1.controller.input_vel
+    send_command("f 0")  # axis 0
+    response = connection.readline().decode().strip()
+    parts = response.split()
+    currentVelAxis0 = float(parts[1])
+
+    send_command("f 1")  # axis 1
+    response = connection.readline().decode().strip()
+    parts = response.split()
+    currentVelAxis1 = float(parts[1])
 
     if currentVelAxis0 < currentVelAxis1:
-        odrv0.axis1.controller.input_vel = currentVelAxis0
+        send_command(f"v 1 {currentVelAxis0}")
     else:
-        odrv0.axis0.controller.input_vel = currentVelAxis1
+        send_command(f"v 0 {currentVelAxis1}")
 
 def turnBy90DegreesRight(): #right wheel does not move
     return

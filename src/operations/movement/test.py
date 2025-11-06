@@ -1,13 +1,7 @@
 import time
-
-import odrive
 import movement
 from src.operations.movement.movement import moveForward, stopMoving, turnLeft, stopTurning, turnRight
 
-odrv0 = odrive.find_any()
-
-#odrv0.axis0.controller.input_vel = 0
-#odrv0.axis1.controller.input_vel = 0
 print("moving forward")
 moveForward(1.5)
 
