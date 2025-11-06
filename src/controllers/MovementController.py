@@ -8,12 +8,13 @@ import time
 
 # import movement and call functions
 
+#Remember! Change state to idle in odrive, or call set state idle to test if closed loop works 
 #predefined states
 AXIS_STATE_CLOSED_LOOP_CONTROL: Final = 8
 IDLE: Final = 1 #helps with motor twitching
 
 # set the state from idle to closed loop
-def set_motor_state_startup():
+def set_motor_state_closed_loop():
     ser.write("w axis0.requested_state 8\n".encode())
     ser.write("w axis1.requested_state 8\n".encode())
     time.sleep(0.5) # might need time to enter closed loop
