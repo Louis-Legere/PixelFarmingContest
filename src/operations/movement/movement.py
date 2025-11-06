@@ -76,23 +76,43 @@ def stopMoving():
     send_command(f"v 0 0")
     send_command(f"v 1 0")
 
-def turnRight(percentage): #percentage that the right wheel spins faster left wheel also spins slowly
-    send_command("f 0")  # axis 0
-    response = connection.readline().decode().strip()
-    parts = response.split()
-    currentVelLeft = float(parts[1])
+def turnRight(percentage: float):
+    """Make right turn by increasing left wheel speed by a small percentage"""
+    pct = percentage / 100  # convert 20 -> 0.2
 
-    value = currentVelLeft * percentage
-    send_command(f"v 0 {currentVelLeft + value}")
+    # Read current velocities
+    send_command("f 0")  # left wheel
+    vel_left = float(connection.readline().decode().strip().split()[1])
 
-def turnLeft(percentage): #percentage that the left wheel spins faster right wheel also spins slowly
-    send_command("f 1")  # axis 0
-    response = connection.readline().decode().strip()
-    parts = response.split()
-    currentVelRight = float(parts[1])
+    send_command("f 1")  # right wheel
+    vel_right = float(connection.readline().decode().strip().split()[1])
 
-    value = currentVelRight * percentage
-    send_command(f"v 1 {currentVelRight + value}")
+    # Left wheel spins faster
+    new_vel_left = vel_left * (1 + pct)
+
+    send_command(f"v 0 {new_vel_left}")
+    # right wheel stays the same
+    send_command(f"v 1 {vel_right}")
+
+
+def turnLeft(percentage: float):
+    """Make left turn by increasing right wheel speed by a small percentage"""
+    pct = percentage / 100  # convert 20 -> 0.2
+
+    # Read current velocities
+    send_command("f 0")  # left wheel
+    vel_left = float(connection.readline().decode().strip().split()[1])
+
+    send_command("f 1")  # right wheel
+    vel_right = float(connection.readline().decode().strip().split()[1])
+
+    # Right wheel spins faster
+    new_vel_right = vel_right * (1 + pct)
+
+    send_command(f"v 1 {new_vel_right}")
+    # left wheel stays the same
+    send_command(f"v 0 {vel_left}")
+
 
 def stopTurning():
     send_command("f 0")  # axis 0
