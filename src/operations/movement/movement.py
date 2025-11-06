@@ -1,16 +1,15 @@
-
 from src.utils.uartConnection import connection
 from typing import Final
 import time
 
+# Constants
 maxSpeed: Final = 2
-accelerationWaitTime = 0.01 #time that a certain speed is being used during acceleration
+accelerationWaitTime = 0.01
 decelerationWaitTime = 0.01
 decelerationSteps = 100
 
-#predefined states
-AXIS_STATE_CLOSED_LOOP_CONTROL: Final = 8
-IDLE: Final = 1 #helps with motor twitching
+# Keep track of current velocities in Python
+current_velocity = {"0": 0.0, "1": 0.0}  # axis0 = left, axis1 = right
 
 # Helper function to send a command via UART
 def send_command(command: str):
@@ -20,121 +19,82 @@ def send_command(command: str):
     connection.write((command + "\n").encode("utf-8"))
     time.sleep(0.001)  # small delay to avoid overwhelming the microcontroller
 
+# Forward / Backward
 def moveForward(velocity: float):
-    steps = int(velocity * 100) + 1  # 1.55 * 100 is 155. +1 = 156
-
-    for i in range(steps): # 0 ... 155
-        speed = i / 100  # convert back to float
-        send_command(f"v 0 {speed}") # v = velocity; 0 = axisNumber; speed = velocity
+    """Smoothly accelerate both motors to the target velocity."""
+    steps = int(velocity * 100) + 1
+    for i in range(steps):
+        speed = i / 100
+        current_velocity["0"] = speed
+        current_velocity["1"] = speed
+        send_command(f"v 0 {speed}")
         send_command(f"v 1 {speed}")
-        print(f"Current speed: {speed}")
+        print(f"Current speed: {speed:.2f}")
         time.sleep(accelerationWaitTime)
 
-def moveBackwards(velocity):
-    for i in range(int( abs(velocity) * 100 + 1)):  # in case of velocity = 1.55 its 156. So the loop goes 0,1,2 ... 155. And 155 divided by 100 is 1.55 again
-        send_command(f"v 0 {(i / 100) * -1}") #negative cause backwards
-        send_command(f"v 1 {(i / 100) * -1}")
-        print(f"Current speed: {(i / 100) * -1}")
+def moveBackwards(velocity: float):
+    """Smoothly accelerate both motors backwards to the target velocity."""
+    steps = int(abs(velocity) * 100) + 1
+    for i in range(steps):
+        speed = -(i / 100)
+        current_velocity["0"] = speed
+        current_velocity["1"] = speed
+        send_command(f"v 0 {speed}")
+        send_command(f"v 1 {speed}")
+        print(f"Current speed: {speed:.2f}")
         time.sleep(accelerationWaitTime)
 
+# Stop
 def stopMoving():
-    send_command("f 0")  # axis 0
-    response = connection.readline().decode().strip()
-    parts = response.split()
-    velAxis0 = float(parts[1])
+    """Smoothly decelerate both motors to zero."""
+    vel0 = current_velocity["0"]
+    vel1 = current_velocity["1"]
 
-    send_command("f 1")  # axis 1
-    response = connection.readline().decode().strip()
-    parts = response.split()
-    velAxis1 = float(parts[1])
+    dec0 = vel0 / decelerationSteps
+    dec1 = vel1 / decelerationSteps
 
-    # Compute decrement per step
-    decrementAxis0 = velAxis0 / decelerationSteps
-    decrementAxis1 = velAxis1 / decelerationSteps
-
-    for i in range(decelerationSteps):
-        # Reduce velocity but do not go below zero
-        send_command("f 0")  # axis 0
-        response = connection.readline().decode().strip()
-        parts = response.split()
-        currentVelAxis0 = float(parts[1])
-
-        send_command("f 1")  # axis 1
-        response = connection.readline().decode().strip()
-        parts = response.split()
-        currentVelAxis1 = float(parts[1])
-
-        send_command(f"v 0 {max(0, currentVelAxis0 - decrementAxis0)}")
-        send_command(f"v 1 {max(0, currentVelAxis1 - decrementAxis1)}")
-
-        # Print current velocities
-        print(f"speed axis0 = {max(0, currentVelAxis0 - decrementAxis0):.2f}")
-        print(f"speed axis1 = {max(0, currentVelAxis1 - decrementAxis1):.2f}")
+    for _ in range(decelerationSteps):
+        vel0 = max(0, vel0 - dec0) if vel0 > 0 else min(0, vel0 - dec0)
+        vel1 = max(0, vel1 - dec1) if vel1 > 0 else min(0, vel1 - dec1)
+        current_velocity["0"] = vel0
+        current_velocity["1"] = vel1
+        send_command(f"v 0 {vel0}")
+        send_command(f"v 1 {vel1}")
+        print(f"speed axis0 = {vel0:.2f}, axis1 = {vel1:.2f}")
         time.sleep(decelerationWaitTime)
 
-    # Ensure velocities are exactly zero at the end
-    send_command(f"v 0 0")
-    send_command(f"v 1 0")
+    current_velocity["0"] = 0.0
+    current_velocity["1"] = 0.0
+    send_command("v 0 0")
+    send_command("v 1 0")
+
+# Turning
+def turnLeft(percentage: float):
+    """Increase right wheel speed by a percentage while keeping left wheel unchanged."""
+    pct = percentage / 100
+    current_velocity["1"] = current_velocity["1"] * (1 + pct)
+    send_command(f"v 1 {current_velocity['1']}")
+    print(f"Turning left: left={current_velocity['0']:.2f}, right={current_velocity['1']:.2f}")
 
 def turnRight(percentage: float):
-    """Make right turn by increasing left wheel speed by a small percentage"""
-    pct = percentage / 100  # convert 20 -> 0.2
-
-    # Read current velocities
-    send_command("f 0")  # left wheel
-    vel_left = float(connection.readline().decode().strip().split()[1])
-
-    send_command("f 1")  # right wheel
-    vel_right = float(connection.readline().decode().strip().split()[1])
-
-    # Left wheel spins faster
-    new_vel_left = vel_left * (1 + pct)
-
-    send_command(f"v 0 {new_vel_left}")
-    # right wheel stays the same
-    send_command(f"v 1 {vel_right}")
-
-
-def turnLeft(percentage: float):
-    """Make left turn by increasing right wheel speed by a small percentage"""
-    pct = percentage / 100  # convert 20 -> 0.2
-
-    # Read current velocities
-    send_command("f 0")  # left wheel
-    vel_left = float(connection.readline().decode().strip().split()[1])
-
-    send_command("f 1")  # right wheel
-    vel_right = float(connection.readline().decode().strip().split()[1])
-
-    # Right wheel spins faster
-    new_vel_right = vel_right * (1 + pct)
-
-    send_command(f"v 1 {new_vel_right}")
-    # left wheel stays the same
-    send_command(f"v 0 {vel_left}")
-
+    """Increase left wheel speed by a percentage while keeping right wheel unchanged."""
+    pct = percentage / 100
+    current_velocity["0"] = current_velocity["0"] * (1 + pct)
+    send_command(f"v 0 {current_velocity['0']}")
+    print(f"Turning right: left={current_velocity['0']:.2f}, right={current_velocity['1']:.2f}")
 
 def stopTurning():
-    send_command("f 0")  # axis 0
-    response = connection.readline().decode().strip()
-    parts = response.split()
-    currentVelAxis0 = float(parts[1])
+    """Balance wheel speeds by setting both to the slower wheel."""
+    slower = min(current_velocity["0"], current_velocity["1"])
+    current_velocity["0"] = slower
+    current_velocity["1"] = slower
+    send_command(f"v 0 {slower}")
+    send_command(f"v 1 {slower}")
+    print(f"Stopping turn: axis0 = {slower:.2f}, axis1 = {slower:.2f}")
 
-    send_command("f 1")  # axis 1
-    response = connection.readline().decode().strip()
-    parts = response.split()
-    currentVelAxis1 = float(parts[1])
+# 90-degree turns (to be implemented)
+def turnBy90DegreesRight():
+    pass
 
-    if currentVelAxis0 < currentVelAxis1:
-        send_command(f"v 1 {currentVelAxis0}")
-    else:
-        send_command(f"v 0 {currentVelAxis1}")
-
-def turnBy90DegreesRight(): #right wheel does not move
-    return
-
-def turnBy90DegreesLeft(): #left wheel does not move
-    return
-
-
-
+def turnBy90DegreesLeft():
+    pass
