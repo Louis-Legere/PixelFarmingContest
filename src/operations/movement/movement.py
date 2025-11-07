@@ -65,13 +65,13 @@ def stopMoving():
     send_command("v 1 0")
 
 # Turning
-def turnLeft(percentage: float):
+def turnRight(percentage: float):
     pct = percentage / 100
     current_velocity["1"] = current_velocity["1"] * (1 + pct)
     send_command(f"v 1 {current_velocity['1']}")
     print(f"Turning left: left={current_velocity['0']:.2f}, right={current_velocity['1']:.2f}")
 
-def turnRight(percentage: float):
+def turnLeft(percentage: float):
     pct = percentage / 100
     current_velocity["0"] = current_velocity["0"] * (1 + pct)
     send_command(f"v 0 {current_velocity['0']}")
