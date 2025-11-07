@@ -70,7 +70,7 @@ def transferToForward(velocity):
         case DrivingState.FORWARD:
             pass
         case DrivingState.BACKWARD:
-            movement.stopTurning()
+            movement.stopMoving()
             time.sleep(0.5)
             movement.moveForward(velocity)
         case DrivingState.TURN_LEFT:
@@ -80,8 +80,22 @@ def transferToForward(velocity):
             movement.stopTurning()
             movement.moveForward(velocity)
 
-def transferToBackward():
-    pass
+def transferToBackward(velocity):
+    match currentDrivingState:
+        case DrivingState.STOP:
+            movement.moveBackwards(velocity)
+        case DrivingState.FORWARD:
+            movement.stopMoving()
+            time.sleep(0.5)
+            movement.moveBackwards(velocity)
+        case DrivingState.BACKWARD:
+            pass
+        case DrivingState.TURN_LEFT:
+            movement.stopTurning()
+            movement.moveBackwards(velocity)
+        case DrivingState.TURN_RIGHT:
+            movement.stopTurning()
+            movement.moveBackwards(velocity)
 
 def transferToLeft():
     pass
