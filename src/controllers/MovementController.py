@@ -13,7 +13,7 @@ from utils import uartConnection
 AXIS_STATE_CLOSED_LOOP_CONTROL: Final = 8
 IDLE: Final = 1 #helps with motor twitching
 
-ser = uartConnection.connection  # rename to something shorter to use
+ser = uartConnection.connection
 
 # set the state from idle to closed loop
 def set_motor_state_closed_loop():
