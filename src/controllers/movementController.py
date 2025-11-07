@@ -11,6 +11,18 @@ from src.operations.movement import movement
 
 #Remember! Change state to idle in odrive, or call set state idle to test if closed loop works 
 #predefined states
+
+from enum import Enum, auto
+
+class DrivingState(Enum):
+    FORWARD = auto()
+    BACKWARD = auto()
+    STOP = auto()
+    TURN_LEFT = auto()
+    TURN_RIGHT = auto()
+
+currentDrivingState = DrivingState.STOP
+
 AXIS_STATE_CLOSED_LOOP_CONTROL: Final = 8
 IDLE: Final = 1 #helps with motor twitching
 
@@ -48,3 +60,34 @@ def set_motor_state_idle():
 
     print("Motor 0:", resp0)
     print("Motor 1:", resp1)
+
+
+#higher level api functions that call lower level motor control functions
+def transferToForward(velocity):
+    match currentDrivingState:
+        case DrivingState.STOP:
+            movement.moveForward(velocity)
+        case DrivingState.FORWARD:
+            pass
+        case DrivingState.BACKWARD:
+            movement.stopTurning()
+            time.sleep(0.5)
+            movement.moveForward(velocity)
+        case DrivingState.TURN_LEFT:
+            movement.stopTurning()
+            movement.moveForward(velocity)
+        case DrivingState.TURN_RIGHT:
+            movement.stopTurning()
+            movement.moveForward(velocity)
+
+def transferToBackward():
+    pass
+
+def transferToLeft():
+    pass
+
+def transferToRight():
+    pass
+
+def transferToStop():
+    pass
