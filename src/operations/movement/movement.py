@@ -13,7 +13,6 @@ current_velocity = {"0": 0.0, "1": 0.0}  # axis0 = left, axis1 = right
 
 # Helper function to send a command via UART
 def send_command(command: str):
-    """Send a command string to the motor controller via UART."""
     if not connection.is_open:
         raise ConnectionError("UART connection is not open.")
     connection.write((command + "\n").encode("utf-8"))
@@ -21,7 +20,6 @@ def send_command(command: str):
 
 # Forward / Backward
 def moveForward(velocity: float):
-    """Smoothly accelerate both motors to the target velocity."""
     steps = int(velocity * 100) + 1
     for i in range(steps):
         speed = i / 100
@@ -33,7 +31,6 @@ def moveForward(velocity: float):
         time.sleep(accelerationWaitTime)
 
 def moveBackwards(velocity: float):
-    """Smoothly accelerate both motors backwards to the target velocity."""
     steps = int(abs(velocity) * 100) + 1
     for i in range(steps):
         speed = -(i / 100)
@@ -46,7 +43,6 @@ def moveBackwards(velocity: float):
 
 # Stop
 def stopMoving():
-    """Smoothly decelerate both motors to zero."""
     vel0 = current_velocity["0"]
     vel1 = current_velocity["1"]
 
@@ -70,21 +66,18 @@ def stopMoving():
 
 # Turning
 def turnLeft(percentage: float):
-    """Increase right wheel speed by a percentage while keeping left wheel unchanged."""
     pct = percentage / 100
     current_velocity["1"] = current_velocity["1"] * (1 + pct)
     send_command(f"v 1 {current_velocity['1']}")
     print(f"Turning left: left={current_velocity['0']:.2f}, right={current_velocity['1']:.2f}")
 
 def turnRight(percentage: float):
-    """Increase left wheel speed by a percentage while keeping right wheel unchanged."""
     pct = percentage / 100
     current_velocity["0"] = current_velocity["0"] * (1 + pct)
     send_command(f"v 0 {current_velocity['0']}")
     print(f"Turning right: left={current_velocity['0']:.2f}, right={current_velocity['1']:.2f}")
 
 def stopTurning():
-    """Balance wheel speeds by setting both to the slower wheel."""
     slower = min(current_velocity["0"], current_velocity["1"])
     current_velocity["0"] = slower
     current_velocity["1"] = slower

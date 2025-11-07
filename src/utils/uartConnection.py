@@ -8,3 +8,4 @@ try:
     print(f"Connected to {uart_port} at {baud_rate} baud.")
 except serial.SerialException as e:
     raise ConnectionError(f"Failed to open serial port {uart_port}: {e}")
+
