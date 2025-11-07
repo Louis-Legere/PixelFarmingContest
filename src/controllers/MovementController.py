@@ -1,8 +1,8 @@
 
 from typing import Final
 import time
-from utils import uartConnection
-from operations.movement import movement
+from src.utils import uartConnection
+from src.operations.movement import movement
 
 #Remember! Always try to decelerate (stopMoving) first to prevent mechanical stress
 # or abrupt torque cutoff on the motors.
