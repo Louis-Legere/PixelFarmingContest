@@ -1,7 +1,7 @@
 
-import serial
 from typing import Final
 import time
+from utils import uartConnection
 
 #Remember! Always try to decelerate (stopMoving) first to prevent mechanical stress
 # or abrupt torque cutoff on the motors.
@@ -12,6 +12,8 @@ import time
 #predefined states
 AXIS_STATE_CLOSED_LOOP_CONTROL: Final = 8
 IDLE: Final = 1 #helps with motor twitching
+
+ser = uartConnection.connection  # rename to something shorter to use
 
 # set the state from idle to closed loop
 def set_motor_state_closed_loop():
