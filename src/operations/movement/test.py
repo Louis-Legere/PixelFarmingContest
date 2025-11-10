@@ -7,25 +7,5 @@ moveForward(1.5)
 
 time.sleep(3)
 
-print("turning left")
-turnLeft(20)
-
-time.sleep(3)
-
-print("moving forward")
-stopTurning()
-
-time.sleep(3)
-
-print("turning right")
-turnRight(20)
-
-time.sleep(3)
-
-print("moving forward")
-stopTurning()
-
-time.sleep(3)
-
 print("stopping")
 stopMoving()
