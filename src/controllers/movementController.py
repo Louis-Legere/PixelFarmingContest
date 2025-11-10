@@ -134,7 +134,7 @@ def transferToLeft(percentage):
             movement.stopTurning()
             movement.turnLeft(percentage)
 
-    currentDrivingState = DrivingState.BACKWARD
+    currentDrivingState = DrivingState.TURN_LEFT
 
 def transferToRight(percentage):
     global currentDrivingState
@@ -151,7 +151,7 @@ def transferToRight(percentage):
         case DrivingState.TURN_RIGHT:
             pass
 
-    currentDrivingState = DrivingState.BACKWARD
+    currentDrivingState = DrivingState.TURN_RIGHT
 
 def transferToStop():
     global currentDrivingState
@@ -167,4 +167,4 @@ def transferToStop():
         case DrivingState.TURN_RIGHT:
             movement.stopMoving()
 
-    currentDrivingState = DrivingState.BACKWARD
+    currentDrivingState = DrivingState.STOP
