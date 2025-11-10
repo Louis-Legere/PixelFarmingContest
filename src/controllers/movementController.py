@@ -64,6 +64,7 @@ def set_motor_state_idle():
 
 #higher level api functions that call lower level motor control functions
 def transferToForward(velocity):
+    global currentDrivingState
     match currentDrivingState:
         case DrivingState.STOP:
             movement.moveForward(velocity)
@@ -79,8 +80,11 @@ def transferToForward(velocity):
         case DrivingState.TURN_RIGHT:
             movement.stopTurning()
             movement.moveForward(velocity)
+
+    currentDrivingState = DrivingState.FORWARD
 
 def transferToBackward(velocity):
+    global currentDrivingState
     match currentDrivingState:
         case DrivingState.STOP:
             movement.moveBackwards(velocity)
@@ -97,11 +101,54 @@ def transferToBackward(velocity):
             movement.stopTurning()
             movement.moveBackwards(velocity)
 
-def transferToLeft():
-    pass
+    currentDrivingState = DrivingState.BACKWARD
 
-def transferToRight():
-    pass
+def transferToLeft(percentage):
+    global currentDrivingState
+    match currentDrivingState:
+        case DrivingState.STOP:
+            movement.turnLeft(percentage)
+        case DrivingState.FORWARD:
+            movement.turnLeft(percentage)
+        case DrivingState.BACKWARD:
+            pass #robot cant turn while driving backwards
+        case DrivingState.TURN_LEFT:
+            pass
+        case DrivingState.TURN_RIGHT:
+            movement.stopTurning()
+            movement.turnLeft(percentage)
+
+    currentDrivingState = DrivingState.BACKWARD
+
+def transferToRight(percentage):
+    global currentDrivingState
+    match currentDrivingState:
+        case DrivingState.STOP:
+            movement.turnRight(percentage)
+        case DrivingState.FORWARD:
+            movement.turnRight(percentage)
+        case DrivingState.BACKWARD:
+            pass #robot cant turn while driving backwards
+        case DrivingState.TURN_LEFT:
+            movement.stopTurning()
+            movement.turnRight(percentage)
+        case DrivingState.TURN_RIGHT:
+            pass
+
+    currentDrivingState = DrivingState.BACKWARD
 
 def transferToStop():
-    pass
+    global currentDrivingState
+    match currentDrivingState:
+        case DrivingState.STOP:
+            pass
+        case DrivingState.FORWARD:
+            movement.stopMoving()
+        case DrivingState.BACKWARD:
+            movement.stopMoving()
+        case DrivingState.TURN_LEFT:
+            movement.stopMoving()
+        case DrivingState.TURN_RIGHT:
+            movement.stopMoving()
+
+    currentDrivingState = DrivingState.BACKWARD

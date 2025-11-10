@@ -67,15 +67,38 @@ def stopMoving():
 # Turning
 def turnRight(percentage: float):
     pct = percentage / 100
-    current_velocity["1"] = current_velocity["1"] * (1 + pct)
+    left_vel = current_velocity["0"]
+    right_vel = current_velocity["1"]
+    # If robot is nearly stationary → pivot turn
+    if abs(left_vel) < 1e-3 and abs(right_vel) < 1e-3:
+        base_speed = 0.2  # 20% speed pivot
+        current_velocity["0"] = 0
+        current_velocity["1"] = base_speed
+    else:
+        current_velocity["1"] = current_velocity["1"] * (1 + pct)
+
+    send_command(f"v 0 {current_velocity['0']}")
     send_command(f"v 1 {current_velocity['1']}")
     print(f"Turning left: left={current_velocity['0']:.2f}, right={current_velocity['1']:.2f}")
 
 def turnLeft(percentage: float):
     pct = percentage / 100
-    current_velocity["0"] = current_velocity["0"] * (1 + pct)
+    left_vel = current_velocity["0"]
+    right_vel = current_velocity["1"]
+
+    # If robot is nearly stationary → pivot turn
+    if abs(left_vel) < 1e-3 and abs(right_vel) < 1e-3:
+        base_speed = 0.2  # 20% speed pivot
+        current_velocity["0"] = base_speed   # left wheel moves
+        current_velocity["1"] = 0            # right wheel stops
+    else:
+        # Increase left wheel speed instead of right
+        current_velocity["0"] = current_velocity["0"] * (1 + pct)
+
     send_command(f"v 0 {current_velocity['0']}")
+    send_command(f"v 1 {current_velocity['1']}")
     print(f"Turning right: left={current_velocity['0']:.2f}, right={current_velocity['1']:.2f}")
+
 
 def stopTurning():
     slower = min(current_velocity["0"], current_velocity["1"])
