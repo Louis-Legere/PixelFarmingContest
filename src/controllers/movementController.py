@@ -30,14 +30,6 @@ ser = uartConnection.connection
 
 # set the state from idle to closed loop
 def set_motor_state_closed_loop():
-
-    # check the current state should be closed loop or 8
-    ser.write("r axis0.current_state\n".encode())
-    resp0 = ser.readline().decode().strip()
-
-    ser.write("r axis1.current_state\n".encode())
-    resp1 = ser.readline().decode().strip()
-
     ser.write("w axis0.requested_state 8\n".encode())
     ser.write("w axis1.requested_state 8\n".encode())
     time.sleep(0.5) # might need time to enter closed loop
@@ -55,14 +47,6 @@ def set_motor_state_closed_loop():
 
 # shutting down should go back into Idle
 def set_motor_state_idle():
-
-    # check the current state should be idle or 1
-    ser.write("r axis0.current_state\n".encode())
-    resp0 = ser.readline().decode().strip()
-
-    ser.write("r axis1.current_state\n".encode())
-    resp1 = ser.readline().decode().strip()
-
     ser.write("w axis0.requested_state 1\n".encode())
     ser.write("w axis1.requested_state 1\n".encode())
     time.sleep(0.5) # might need time to enter idle 
